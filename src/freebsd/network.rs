@@ -42,51 +42,51 @@ impl NetworksExt for Networks {
 pub struct NetworkData;
 
 impl NetworkExt for NetworkData {
-    fn get_received(&self) -> u64 {
+    fn received(&self) -> u64 {
         0
     }
 
-    fn get_total_received(&self) -> u64 {
+    fn total_received(&self) -> u64 {
         0
     }
 
-    fn get_transmitted(&self) -> u64 {
+    fn transmitted(&self) -> u64 {
         0
     }
 
-    fn get_total_transmitted(&self) -> u64 {
+    fn total_transmitted(&self) -> u64 {
         0
     }
 
-    fn get_packets_received(&self) -> u64 {
+    fn packets_received(&self) -> u64 {
         0
     }
 
-    fn get_total_packets_received(&self) -> u64 {
+    fn total_packets_received(&self) -> u64 {
         0
     }
 
-    fn get_packets_transmitted(&self) -> u64 {
+    fn packets_transmitted(&self) -> u64 {
         0
     }
 
-    fn get_total_packets_transmitted(&self) -> u64 {
+    fn total_packets_transmitted(&self) -> u64 {
         0
     }
 
-    fn get_errors_on_received(&self) -> u64 {
+    fn errors_on_received(&self) -> u64 {
         0
     }
 
-    fn get_total_errors_on_received(&self) -> u64 {
+    fn total_errors_on_received(&self) -> u64 {
         0
     }
 
-    fn get_errors_on_transmitted(&self) -> u64 {
+    fn errors_on_transmitted(&self) -> u64 {
         0
     }
 
-    fn get_total_errors_on_transmitted(&self) -> u64 {
+    fn total_errors_on_transmitted(&self) -> u64 {
         0
     }
 }

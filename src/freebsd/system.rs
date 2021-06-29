@@ -60,14 +60,8 @@ impl SystemExt for System {
     fn refresh_processes(&mut self) {
         let mut count: c_uint = 0;
         let prstat = unsafe { procstat_open_sysctl() };
-        let p = unsafe {
-            procstat_getprocs(
-                prstat,
-                libc::KERN_PROC_PROC,
-                0,
-                ptr::addr_of_mut!(count),
-            )
-        };
+        let p =
+            unsafe { procstat_getprocs(prstat, libc::KERN_PROC_PROC, 0, ptr::addr_of_mut!(count)) };
         let mut processes = HashMap::with_capacity(count.try_into().unwrap());
         let count: isize = count.try_into().unwrap();
         let ccpu = ccpu();
@@ -120,96 +114,96 @@ impl SystemExt for System {
     fn refresh_disks_list(&mut self) {}
 
     fn refresh_users_list(&mut self) {
-        self.users = get_users_list();
+        self.users = users_list();
     }
 
-    fn get_processes(&self) -> &HashMap<Pid, Process> {
+    fn processes(&self) -> &HashMap<Pid, Process> {
         &self.processes
     }
 
-    fn get_process(&self, _pid: Pid) -> Option<&Process> {
+    fn process(&self, _pid: Pid) -> Option<&Process> {
         None
     }
 
-    fn get_networks(&self) -> &Networks {
+    fn networks(&self) -> &Networks {
         &self.networks
     }
 
-    fn get_networks_mut(&mut self) -> &mut Networks {
+    fn networks_mut(&mut self) -> &mut Networks {
         &mut self.networks
     }
 
-    fn get_global_processor_info(&self) -> &Processor {
+    fn global_processor_info(&self) -> &Processor {
         &self.global_processor
     }
 
-    fn get_processors(&self) -> &[Processor] {
+    fn processors(&self) -> &[Processor] {
         &[]
     }
 
-    fn get_physical_core_count(&self) -> Option<usize> {
+    fn physical_core_count(&self) -> Option<usize> {
         const KERN_SMP: c_int = 0x7fff_fc58; // todo: if added to libc crate, use that instead
         const KERN_SMP_CORES: c_int = 0x7fff_fc51; // todo: if added to libc crate, use that instead
         let mut mib: [c_int; 3] = [libc::CTL_KERN, KERN_SMP, KERN_SMP_CORES];
         unsafe { sysctl::<u32>(&mut mib) }.and_then(|x| x.try_into().ok())
     }
 
-    fn get_total_memory(&self) -> u64 {
+    fn total_memory(&self) -> u64 {
         self.mem_total
     }
 
-    fn get_free_memory(&self) -> u64 {
+    fn free_memory(&self) -> u64 {
         // todo: determine if FreeBSD distinguishes free & available memory?
         self.mem_free
     }
 
-    fn get_available_memory(&self) -> u64 {
+    fn available_memory(&self) -> u64 {
         // todo: determine if FreeBSD distinguishes free & available memory?
         self.mem_free
     }
 
-    fn get_used_memory(&self) -> u64 {
+    fn used_memory(&self) -> u64 {
         // todo: determine if FreeBSD distinguishes free & available memory?
         self.mem_total - self.mem_free
     }
 
-    fn get_total_swap(&self) -> u64 {
+    fn total_swap(&self) -> u64 {
         0
     }
 
-    fn get_free_swap(&self) -> u64 {
+    fn free_swap(&self) -> u64 {
         0
     }
 
-    fn get_used_swap(&self) -> u64 {
+    fn used_swap(&self) -> u64 {
         0
     }
 
-    fn get_components(&self) -> &[Component] {
+    fn components(&self) -> &[Component] {
         &[]
     }
 
-    fn get_components_mut(&mut self) -> &mut [Component] {
+    fn components_mut(&mut self) -> &mut [Component] {
         &mut []
     }
 
-    fn get_disks(&self) -> &[Disk] {
+    fn disks(&self) -> &[Disk] {
         &[]
     }
 
-    fn get_disks_mut(&mut self) -> &mut [Disk] {
+    fn disks_mut(&mut self) -> &mut [Disk] {
         &mut []
     }
 
-    fn get_uptime(&self) -> u64 {
+    fn uptime(&self) -> u64 {
         uptime()
     }
 
-    fn get_boot_time(&self) -> u64 {
+    fn boot_time(&self) -> u64 {
         self.boot_time
     }
 
-    fn get_load_average(&self) -> LoadAvg {
+    fn load_average(&self) -> LoadAvg {
         let mut loads = vec![0_f64; 3];
         unsafe {
             libc::getloadavg(loads.as_mut_ptr(), 3);
@@ -221,17 +215,17 @@ impl SystemExt for System {
         }
     }
 
-    fn get_users(&self) -> &[User] {
+    fn users(&self) -> &[User] {
         &self.users
     }
 
-    fn get_name(&self) -> Option<String> {
+    fn name(&self) -> Option<String> {
         // "FreeBSD"
         let mut mib: [c_int; 2] = [libc::CTL_KERN, libc::KERN_OSTYPE];
         unsafe { sysctl_str(&mut mib) }
     }
 
-    fn get_long_os_version(&self) -> Option<String> {
+    fn long_os_version(&self) -> Option<String> {
         // e.g. "FreeBSD 12.2-STABLE r369362 GENERIC"
         let mut info: libc::utsname = unsafe { mem::zeroed() };
 
@@ -250,19 +244,19 @@ impl SystemExt for System {
         }
     }
 
-    fn get_kernel_version(&self) -> Option<String> {
+    fn kernel_version(&self) -> Option<String> {
         // e.g. "1202505"
         let mut mib: [c_int; 2] = [libc::CTL_KERN, libc::KERN_OSRELDATE];
         unsafe { sysctl::<u32>(&mut mib) }.map(|x| format!("{}", x))
     }
 
-    fn get_os_version(&self) -> Option<String> {
+    fn os_version(&self) -> Option<String> {
         // e.g. "12.2-STABLE"
         let mut mib: [c_int; 2] = [libc::CTL_KERN, libc::KERN_OSRELEASE];
         unsafe { sysctl_str(&mut mib) }
     }
 
-    fn get_host_name(&self) -> Option<String> {
+    fn host_name(&self) -> Option<String> {
         let mut mib: [c_int; 2] = [libc::CTL_KERN, libc::KERN_HOSTNAME];
         unsafe { sysctl_str(&mut mib) }
     }
@@ -332,7 +326,7 @@ fn uptime() -> u64 {
     }
 }
 
-fn get_user_groups(name: *const c_char, group_id: gid_t) -> Vec<String> {
+fn user_groups(name: *const c_char, group_id: gid_t) -> Vec<String> {
     let mut groups = Vec::with_capacity(1);
     let mut nb_groups = groups.capacity().try_into().unwrap();
     while let -1 = unsafe { getgrouplist(name, group_id, groups.as_mut_ptr(), &mut nb_groups) } {
@@ -371,12 +365,15 @@ fn users_list() -> Vec<User> {
         };
 
         let pw_shell = unsafe { CStr::from_ptr(pw.pw_shell) }.to_bytes();
-        if pw_shell.ends_with(b"/false") || pw_shell.ends_with(b"/uucico") || pw.pw_uid > u16::MAX.into() {
+        if pw_shell.ends_with(b"/false")
+            || pw_shell.ends_with(b"/uucico")
+            || pw.pw_uid > u16::MAX.into()
+        {
             // This is not a "real" or "local" user.
             continue;
         }
 
-        let groups = get_user_groups(pw.pw_name, pw.pw_gid);
+        let groups = user_groups(pw.pw_name, pw.pw_gid);
         let uid = pw.pw_uid;
         let gid = pw.pw_gid;
         let cstr = unsafe { CStr::from_ptr(pw.pw_name) }
@@ -396,8 +393,4 @@ fn users_list() -> Vec<User> {
     users.sort_unstable_by(|x, y| x.name.partial_cmp(&y.name).unwrap());
     users.dedup_by(|a, b| a.name == b.name);
     users
-}
-
-fn get_users_list() -> Vec<User> {
-    users_list()
 }

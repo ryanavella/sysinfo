@@ -199,24 +199,24 @@ impl Processor {
 }
 
 impl ProcessorExt for Processor {
-    fn get_cpu_usage(&self) -> f32 {
+    fn cpu_usage(&self) -> f32 {
         self.cpu_usage
     }
 
-    fn get_name(&self) -> &str {
+    fn name(&self) -> &str {
         &self.name
     }
 
     /// Returns the CPU frequency in MHz.
-    fn get_frequency(&self) -> u64 {
+    fn frequency(&self) -> u64 {
         self.frequency
     }
 
-    fn get_vendor_id(&self) -> &str {
+    fn vendor_id(&self) -> &str {
         &self.vendor_id
     }
 
-    fn get_brand(&self) -> &str {
+    fn brand(&self) -> &str {
         &self.brand
     }
 }
@@ -263,10 +263,8 @@ pub fn get_cpu_frequency(cpu_core_index: usize) -> u64 {
 
 pub fn get_physical_core_count() -> Option<usize> {
     let mut s = String::new();
-    if File::open("/proc/cpuinfo")
-        .and_then(|mut f| f.read_to_string(&mut s))
-        .is_err()
-    {
+    if let Err(_e) = File::open("/proc/cpuinfo").and_then(|mut f| f.read_to_string(&mut s)) {
+        sysinfo_debug!("Cannot read `/proc/cpuinfo` file: {:?}", _e);
         return None;
     }
 
